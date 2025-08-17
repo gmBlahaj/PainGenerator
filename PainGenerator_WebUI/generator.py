@@ -7,34 +7,34 @@ import random
 import re
 from typing import Tuple, List, Dict, Any
 
-# Set program path to the parent directory to access resources
+
 c_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
-# --- Centralized Cruelty Squad Color Palette ---
+
 CRUELTY_SQUAD_PALETTE = [
-    # SLURPO12
+    
     '#000000', '#1b4418', '#5e5441', '#416e38', '#8a755d', '#659d4a',
     '#c0ad8b', '#81c75f', '#f2e4b9', '#b1e783', '#ffffff', '#d6f89f',
-    # Grimy/Industrial
+    
     '#333333', '#4F4F4F', '#828282', '#BDBDBD', '#E0E0E0', '#F2F2F2',
     '#564D4D', '#6A5F5F', '#7F7272', '#948585', '#A99898', '#BEACAC',
-    # Flesh and Gore
+    
     '#58181F', '#8C1C27', '#B82735', '#E5394A', '#FF576B', '#FF8A9A',
     '#4A251D', '#7B4032', '#A55A48', '#D27C65', '#FFAD8F', '#FFE4D6',
-    # Sickly Greens & Yellows
+    
     '#A1B43B', '#CADB50', '#EFFF6B', '#FFFF9E', '#FFFFD1', '#F0F5BE',
     '#5E6E25', '#7D9033', '#A0B842', '#C7E351', '#EFFF6B', '#F8FFB0',
-    # Corporate Blues
+    
     '#0D1B2A', '#1B263B', '#415A77', '#778DA9', '#A9BCD0', '#E0E1DD',
     '#003049', '#00507A', '#0077B6', '#0096C7', '#48CAE4', '#90E0EF',
-    # Vibrant & Gaudy ("Knallige")
+    
     '#FF00FF', '#FF00BF', '#FF0080', '#FF0040', '#FF4000', '#FF8000',
     '#FFBF00', '#FFFF00', '#BFFF00', '#80FF00', '#40FF00', '#00FF00',
     '#00FF40', '#00FF80', '#00FFBF', '#00FFFF', '#00BFFF', '#0080FF',
     '#0040FF', '#0000FF', '#4000FF', '#8000FF', '#BF00FF', '#FF00FF',
 ]
 
-# Load wordlists at startup
+
 wordlists: Dict[str, List[str]] = {}
 for list_name in ['SPRAWL', 'TempleOS', '1894']:
     try:
@@ -66,13 +66,13 @@ def generate_image(values: Dict[str, Any]) -> str:
     """Generates a single image based on the provided values and returns the save path."""
     is_user_generated = values.get('-CHECKBOX-', False)
 
-    # --- Input Validation ---
+    
     try:
         width, height = map(int, values['-SIZE-'].split('x'))
     except (ValueError, AttributeError):
         raise ValueError("Invalid image size selected.")
 
-    # --- Word Setup ---
+    
     if is_user_generated:
         word = values.get('-WORD-', 'PAIN')
         if not 2 <= len(word) <= 10:
@@ -86,19 +86,19 @@ def generate_image(values: Dict[str, Any]) -> str:
         else:
             word = "DEFAULT"
 
-    # --- Color Setup ---
+    
     hex1 = values.get('-HEX1-')
     hex2 = values.get('-HEX2-')
 
-    # If hex codes are provided and valid, use them.
+    
     if hex1 and hex2 and is_valid_hex_code(hex1) and is_valid_hex_code(hex2):
         color1, color2 = hex_to_rgb(hex1), hex_to_rgb(hex2)
     else:
-        # Otherwise, pick two random colors from the main palette.
+        
         hex1, hex2 = random.sample(CRUELTY_SQUAD_PALETTE, 2)
         color1, color2 = hex_to_rgb(hex1), hex_to_rgb(hex2)
 
-    # --- Image Generation ---
+    
     text_canvas_size = (width * 8, height * 8)
     txtimg = Image.new('RGBA', text_canvas_size, (255, 255, 255, 0))
 
@@ -129,7 +129,7 @@ def generate_image(values: Dict[str, Any]) -> str:
 
     composite = Image.alpha_composite(img.convert('RGBA'), cropped_text)
 
-    # --- Saving ---
+    
     savepath = values.get('-FOLDER-', os.path.join(c_path, 'results'))
     os.makedirs(savepath, exist_ok=True)
 

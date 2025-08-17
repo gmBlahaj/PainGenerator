@@ -10,10 +10,10 @@ import re
 from typing import Tuple, List, Dict, Any
 from PainGenerator_WebUI.generator import CRUELTY_SQUAD_PALETTE
 
-# Set program path
+
 c_path = os.path.dirname(__file__)
 
-# Load wordlists at startup
+
 wordlists: Dict[str, List[str]] = {}
 for list_name in ['SPRAWL', 'TempleOS', '1894']:
     try:
@@ -88,10 +88,10 @@ class PainGeneratorGUI(tk.Tk):
         super().__init__()
         self.title("PAIN GENERATOR v1.00")
         self.iconphoto(True, tk.PhotoImage(file=os.path.join(c_path, 'resources', 'PAIN.png')))
-        self.resizable(True, True) # Make window resizable
-        self.minsize(600, 500) # Set a minimum size
+        self.resizable(True, True) 
+        self.minsize(600, 500) 
 
-        # Configure grid layout to expand
+        
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
@@ -142,7 +142,7 @@ class PainGeneratorGUI(tk.Tk):
         style.configure("Vertical.TScrollbar", background=BUTTON_BG, troughcolor=BG_COLOR, bordercolor=BG_COLOR, arrowcolor=FG_COLOR)
         style.map("Vertical.TScrollbar", background=[('active', SELECT_BG)])
 
-        # Styles for the new mode indicator label
+        
         style.configure('Random.TLabel', background=INPUT_BG, foreground='#FF0000', anchor='center', font=('Courier', 12, 'bold'))
         style.configure('User.TLabel', background=INPUT_BG, foreground=ACCENT_COLOR, anchor='center', font=('Courier', 12, 'bold'))
 
@@ -150,19 +150,19 @@ class PainGeneratorGUI(tk.Tk):
         main_frame = ttk.Frame(self, padding="25")
         main_frame.grid(row=0, column=0, sticky="nsew")
         main_frame.grid_columnconfigure(0, weight=1)
-        main_frame.grid_columnconfigure(1, weight=2) # Give image frame more space
+        main_frame.grid_columnconfigure(1, weight=2) 
         main_frame.grid_rowconfigure(0, weight=1)
 
         left_frame = ttk.Frame(main_frame)
         left_frame.grid(row=0, column=0, sticky="nsew", padx=(0, 20))
-        left_frame.grid_columnconfigure(0, weight=1) # Allow widgets to expand horizontally
+        left_frame.grid_columnconfigure(0, weight=1) 
 
         right_frame = ttk.Frame(main_frame)
         right_frame.grid(row=0, column=1, sticky="nsew")
         right_frame.grid_rowconfigure(0, weight=1)
         right_frame.grid_columnconfigure(0, weight=1)
 
-        # --- Left Frame Widgets ---
+        
         self.mode_indicator_label = ttk.Label(left_frame, text="")
         self.mode_indicator_label.grid(row=0, column=0, columnspan=5, sticky=tk.EW, pady=(0, 15))
 
@@ -199,14 +199,14 @@ class PainGeneratorGUI(tk.Tk):
 
         ttk.Button(left_frame, text="GENERATE", command=self.generate, style="Accent.TButton").grid(row=12, column=0, columnspan=5, pady=10, sticky=tk.EW)
 
-        # --- Right Frame Widgets ---
+        
         self.img = ImageTk.PhotoImage(Image.open(os.path.join(c_path, "resources", "PAIN.png")))
         self.image_label = ttk.Label(right_frame, image=self.img, anchor="center")
         self.image_label.grid(row=0, column=0, columnspan=2, sticky="nsew")
 
         wordlist_frame = ttk.Frame(right_frame)
         wordlist_frame.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(5,0))
-        wordlist_frame.columnconfigure(0, weight=1) # Push combo to the right
+        wordlist_frame.columnconfigure(0, weight=1) 
         ttk.Label(wordlist_frame, text="WORDLIST:").grid(row=0, column=0, sticky=tk.E, padx=(0,5))
         self.wordlist_combo = ttk.Combobox(wordlist_frame, textvariable=self.wordlist_var, values=['Cyberpunk AF', 'TempleOS', '1894'], state='readonly', width=15)
         self.wordlist_combo.grid(row=0, column=1, sticky=tk.W)
