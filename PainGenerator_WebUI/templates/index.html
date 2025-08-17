@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAIN GENERATOR</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='PAIN.ico') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="controls">
+            <form action="/" method="post" id="generator-form">
+                <div class="checkbox-group">
+                    <label class="switch">
+                        <input type="checkbox" id="mode-toggle" name="is_user_generated" {% if form_data.is_user_generated %}checked{% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                    <label for="mode-toggle">Random / User Generated</label>
+                </div>
+
+                <!-- User Generated Controls -->
+                <div id="user-controls">
+                    <div class="form-group">
+                        <label for="word">Word</label>
+                        <input type="text" id="word" name="word" value="{{ form_data.word or 'PAIN' }}" minlength="2" maxlength="10">
+                    </div>
+                    <div class="hex-group">
+                        <div class="form-group">
+                            <label for="hex1">Hex Value 1</label>
+                            <input type="text" id="hex1" name="hex1" value="{{ form_data.hex1 or '#FF0000' }}" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">
+                        </div>
+                        <button type="button" class="button button-pick" data-target="hex1">Pick</button>
+                         <div class="form-group">
+                            <label for="hex2">Hex Value 2</label>
+                            <input type="text" id="hex2" name="hex2" value="{{ form_data.hex2 or '#0000FF' }}" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">
+                        </div>
+                        <button type="button" class="button button-pick" data-target="hex2">Pick</button>
+                    </div>
+                     <div class="form-group">
+                        <button type="button" id="reset-hex" class="button button-secondary">Reset Hex</button>
+                    </div>
+                </div>
+
+                <!-- Random Controls -->
+                <div id="random-controls">
+                    <div class="form-group">
+                        <label for="spin">How many images?</label>
+                        <input type="number" id="spin" name="spin" min="1" max="100" value="{{ form_data.spin or 1 }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="wordlist">Wordlist</label>
+                        <select id="wordlist" name="wordlist">
+                            <option value="Cyberpunk AF" {% if form_data.wordlist == 'Cyberpunk AF' %}selected{% endif %}>Cyberpunk AF</option>
+                            <option value="TempleOS" {% if form_data.wordlist == 'TempleOS' %}selected{% endif %}>TempleOS</option>
+                            <option value="1894" {% if form_data.wordlist == '1894' %}selected{% endif %}>1894</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="size">Image Size</label>
+                    <select id="size" name="size">
+                        <option value="128x128" {% if form_data.size == '128x128' %}selected{% endif %}>128x128</option>
+                        <option value="256x256" {% if form_data.size == '256x256' %}selected{% endif %}>256x256</option>
+                        <option value="512x512" {% if form_data.size == '512x512' %}selected{% endif %}>512x512</option>
+                        <option value="1024x1024" {% if form_data.size == '1024x1024' %}selected{% endif %}>1024x1024</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="button button-accent">GENERATE</button>
+                </div>
+            </form>
+        </div>
+        <div class="display">
+            <div id="image-display">
+                {% if image_path %}
+                    <img src="{{ image_path }}" alt="Generated Image">
+                {% else %}
+                    <img src="{{ url_for('static', filename='PAIN.png') }}" alt="Placeholder">
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Color Picker Modal -->
+    <div id="color-modal" class="modal-backdrop" style="display: none;">
+        <div class="modal">
+            <div class="modal-title">Cruelty Squad Colors</div>
+            <div class="modal-content">
+                {% for color in colors %}
+                <div class="color-swatch" data-color="{{ color }}" style="background-color: {{ color }};"></div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const modeToggle = document.getElementById('mode-toggle');
+        const userControls = document.getElementById('user-controls');
+        const randomControls = document.getElementById('random-controls');
+        const resetHexButton = document.getElementById('reset-hex');
+
+        // --- Color Picker ---
+        const colorModal = document.getElementById('color-modal');
+        const pickButtons = document.querySelectorAll('.button-pick');
+        const colorSwatches = document.querySelectorAll('.color-swatch');
+        let activeHexInput = null;
+
+        pickButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                activeHexInput = document.getElementById(button.dataset.target);
+                colorModal.style.display = 'flex';
+            });
+        });
+
+        colorModal.addEventListener('click', (e) => {
+            // Close if backdrop is clicked
+            if (e.target === colorModal) {
+                colorModal.style.display = 'none';
+                activeHexInput = null;
+            }
+        });
+
+        colorSwatches.forEach(swatch => {
+            swatch.addEventListener('click', () => {
+                if (activeHexInput) {
+                    activeHexInput.value = swatch.dataset.color;
+                    // Create and dispatch an input event to sync any other listeners
+                    activeHexInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    colorModal.style.display = 'none';
+                    activeHexInput = null;
+                }
+            });
+        });
+
+
+        // --- Control Toggle ---
+        function toggleControls() {
+            if (modeToggle.checked) {
+                userControls.classList.remove('disabled-overlay');
+                randomControls.classList.add('disabled-overlay');
+            } else {
+                userControls.classList.add('disabled-overlay');
+                randomControls.classList.remove('disabled-overlay');
+            }
+        }
+
+        modeToggle.addEventListener('change', toggleControls);
+
+        resetHexButton.addEventListener('click', () => {
+            document.getElementById('hex1').value = '#FF0000';
+            document.getElementById('hex2').value = '#0000FF';
+        });
+
+        // Initial state
+        document.addEventListener('DOMContentLoaded', toggleControls);
+    </script>
+</body>
+</html>
